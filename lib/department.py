@@ -1,4 +1,3 @@
-# lib/department.py
 from __init__ import CURSOR, CONN
 
 
@@ -9,11 +8,33 @@ class Department:
 
     def __init__(self, name, location, id=None):
         self.id = id
-        self.name = name
-        self.location = location
+        self.name = name  # Use property setter for validation
+        self.location = location  # Use property setter for validation
 
     def __repr__(self):
         return f"<Department {self.id}: {self.name}, {self.location}>"
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, name):
+        if isinstance(name, str) and len(name):
+            self._name = name
+        else:
+            raise ValueError("Name must be a non-empty string")
+
+    @property
+    def location(self):
+        return self._location
+
+    @location.setter
+    def location(self, location):
+        if isinstance(location, str) and len(location):
+            self._location = location
+        else:
+            raise ValueError("Location must be a non-empty string")
 
     @classmethod
     def create_table(cls):
@@ -71,7 +92,6 @@ class Department:
     def delete(self):
         """Delete the table row corresponding to the current Department instance,
         delete the dictionary entry, and reassign id attribute"""
-
         sql = """
             DELETE FROM departments
             WHERE id = ?
@@ -89,7 +109,6 @@ class Department:
     @classmethod
     def instance_from_db(cls, row):
         """Return a Department object having the attribute values from the table row."""
-
         # Check the dictionary for an existing instance using the row's primary key
         department = cls.all.get(row[0])
         if department:
@@ -112,7 +131,6 @@ class Department:
         """
 
         rows = CURSOR.execute(sql).fetchall()
-
         return [cls.instance_from_db(row) for row in rows]
 
     @classmethod
@@ -146,9 +164,6 @@ class Department:
             SELECT * FROM employees
             WHERE department_id = ?
         """
-        CURSOR.execute(sql, (self.id,),)
-
+        CURSOR.execute(sql, (self.id,))
         rows = CURSOR.fetchall()
-        return [
-            Employee.instance_from_db(row) for row in rows
-        ]
+        return [Employee.instance_from_db(row) for row in rows]
